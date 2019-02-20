@@ -1,5 +1,5 @@
 # [To apply changes: init_project.sh -fc] Possible values: git, composer
-checkout_source_from: "git"
+checkout_source_from: "composer"
 
 composer_project:
   # Current section used only if 'checkout_source_from' is set to 'composer'
@@ -46,7 +46,7 @@ environment:
 
 magento:
   # [To apply changes: m-switch-to-ce -f OR m-switch-to-ee -f]
-  install_sample_data: 0
+  install_sample_data: 1
   # [To apply changes: m-switch-to-ce -f OR m-switch-to-ee -f] Generate customer (customer@example.com:123123qQ), category, simple product, configurable product after successful Magento installation
   generate_basic_data: 1
   # [To apply changes: init_project.sh -f]
@@ -54,10 +54,10 @@ magento:
   # [To apply changes: m-reinstall]
   admin_frontname: "admin"
   language: "en_US"
-  timezone: "America/Chicago"
-  currency: "USD"
+  timezone: "Europe/Berlin"
+  currency: "EUR"
   admin_user: "admin"
-  admin_password: "123123q"
+  admin_password: "admin"
   # [Changes applied on m-clear-cache] Available options: developer, production, default
   mode: "developer"
 
