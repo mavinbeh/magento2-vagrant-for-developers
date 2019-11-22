@@ -34,8 +34,8 @@ guest:
   forwarded_ssh_port: 3000
 
 environment:
-  # [To apply changes: vagrant reload] Valid versions: 5.6, 7.0, 7.1, 7.2
-  php_version: "7.1"
+  # [To apply changes: vagrant reload] Valid versions: 7.0, 7.1, 7.2, 7.3
+  php_version: "7.2"
   composer_prefer_source: 0
   # [To apply changes: m-reinstall OR m-varnish enable/disable]
   use_varnish: 0
@@ -46,7 +46,7 @@ environment:
 
 magento:
   # [To apply changes: m-switch-to-ce -f OR m-switch-to-ee -f]
-  install_sample_data: 1
+  install_sample_data: 0
   # [To apply changes: m-switch-to-ce -f OR m-switch-to-ee -f] Generate customer (customer@example.com:123123qQ), category, simple product, configurable product after successful Magento installation
   generate_basic_data: 1
   # [To apply changes: init_project.sh -f]
@@ -57,7 +57,7 @@ magento:
   timezone: "Europe/Berlin"
   currency: "EUR"
   admin_user: "admin"
-  admin_password: "123123q"
+  admin_password: "admin123"
   # [Changes applied on m-clear-cache] Available options: developer, production, default
   mode: "developer"
 

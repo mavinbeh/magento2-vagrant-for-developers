@@ -1,12 +1,19 @@
 #!/usr/bin/env bash
 
 function process_configs () {
+    status "--process_configs"
     configs_path=$1
     configs=$2
     for config in "${configs[@]}"
     do
+        status "--process_configs ""$config"
         if [[ ! -d /vagrant/etc/guest/${config} ]] && [[ ! -f /vagrant/etc/guest/${config} ]]; then
             if [[ -d ${configs_path}/${config} ]] || [[ -f ${configs_path}/${config} ]]; then
+                status " \
+                    sudo rm -rf ${configs_path}/${config}.back && \
+                    sudo cp -rp ${configs_path}/${config} ${configs_path}/${config}.back && \
+                    sudo mv ${configs_path}/${config} /vagrant/etc/guest/${config} && \
+                    sudo ln -s /vagrant/etc/guest/${config} ${configs_path}/${config}"
                 sudo rm -rf "${configs_path}/${config}.back"
                 sudo cp -rp ${configs_path}/${config} "${configs_path}/${config}.back"
                 sudo mv ${configs_path}/${config} /vagrant/etc/guest/${config}
@@ -21,13 +28,13 @@ vagrant_dir="/vagrant"
 source "${vagrant_dir}/scripts/output_functions.sh"
 
 # Below configuration is required to allow managing mysql as a service
-if ! cat /etc/apparmor.d/local/usr.sbin.mysqld | grep -q '/vagrant/etc/guest' ; then
-    echo "
-        /vagrant/etc/guest/mysql/*.pem r,
-        /vagrant/etc/guest/mysql/conf.d/ r,
-        /vagrant/etc/guest/mysql/conf.d/* r,
-        /vagrant/etc/guest/mysql/*.cnf r," >> /etc/apparmor.d/local/usr.sbin.mysqld
-fi
+#if ! cat /etc/apparmor.d/local/usr.sbin.mysqld | grep -q '/vagrant/etc/guest' ; then
+#    echo "
+#        /vagrant/etc/guest/mysql/*.pem r,
+#        /vagrant/etc/guest/mysql/conf.d/ r,
+#        /vagrant/etc/guest/mysql/conf.d/* r,
+#        /vagrant/etc/guest/mysql/*.cnf r," >> /etc/apparmor.d/local/usr.sbin.mysqld
+#fi
 
 status "Making guest configs visible and editable in the host IDE"
 incrementNestingLevel
@@ -37,5 +44,11 @@ config_dir="/etc"
 # See unlink_configs script
 configs=( apache2 php mysql varnish rabbitmq )
 process_configs ${config_dir} ${configs}
+
+# copy my.cnf symlink dest in file
+
+mv /vagrant/etc/guest/mysql/my.cnf /vagrant/etc/guest/mysql/my.cnf.bak
+ln -s $(realpath --relative-to=/vagrant/etc/guest/mysql/ $(readlink -f /vagrant/etc/guest/mysql/my.cnf.bak)) /vagrant/etc/guest/mysql/my.cnf
+rm /vagrant/etc/guest/mysql/my.cnf.bak
 
 decrementNestingLevel

@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+
+php_version=7.3
+
+xdebug_ini_on="/etc/php/$php_version/apache2/conf.d/20-xdebug.ini"
+xdebug_ini_off="/etc/php/$php_version/apache2/conf.d/20-xdebug.ini.deactivated"
+
+if [ -s $xdebug_ini_on ]; then
+   sudo mv $xdebug_ini_on $xdebug_ini_off \
+   && sudo service apache2 restart \
+   && echo '========= XDebug was disabled ========='
+else
+  sudo mv $xdebug_ini_off $xdebug_ini_on \
+  && sudo service apache2 restart \
+  && echo '========= XDebug was enabled ========='
+fi

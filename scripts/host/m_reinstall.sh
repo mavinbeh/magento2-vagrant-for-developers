@@ -4,7 +4,10 @@ cd "$(dirname "${BASH_SOURCE[0]}")/../.." && vagrant_dir=$PWD
 
 source "${vagrant_dir}/scripts/output_functions.sh"
 
+
 magento_app_code_dir="${vagrant_dir}/magento2ce/app/code/Magento"
+
+mkdir -p "$magento_app_code_dir"
 
 cd "${magento_app_code_dir}"
 

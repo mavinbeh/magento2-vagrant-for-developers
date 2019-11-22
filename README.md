@@ -1,3 +1,8 @@
+I forked this repo and made many changes, so its based on an buster debian, with php7.3 and php7.2.
+It's not good tested, its just a first working version.
+Maybe i'll work on it later.
+Contact me if you have any questions.
+
 # Vagrant project for Magento 2 developers (optimized for Mac, Windows and \*nix hosts)
 
 [![Tests passing on OSX](docs/images/tests_badge.png)](https://github.com/paliarush/magento2-vagrant-for-developers-tests)
@@ -287,7 +292,7 @@ See [draft](https://github.com/paliarush/magento2-vagrant-for-developers/issues/
 
 ### Switch between PHP versions
 
-Switch between PHP versions using "php_version: <version>" option in [config.yaml](etc/config.yaml.dist). Supported versions are 5.6, 7.0, 7.1 and 7.2.
+Switch between PHP versions using "php_version: <version>" option in [config.yaml](etc/config.yaml.dist). Supported versions are 7.0, 7.1,7.2 and 7.3
 PHP version will be applied after "vagrant reload".
 
 ### Activating Varnish

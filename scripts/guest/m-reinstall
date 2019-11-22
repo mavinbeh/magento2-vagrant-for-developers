@@ -19,7 +19,8 @@ setupOptions[admin_user]="$(bash ${get_config_value} "magento_admin_user")"
 setupOptions[admin_password]="$(bash ${get_config_value} "magento_admin_password")"
 setupOptions[db_host]='localhost'
 setupOptions[db_name]='magento'
-setupOptions[db_user]='root'
+setupOptions[db_user]='magento'
+setupOptions[db_password]='magento'
 setupOptions[base_url]="http://${magento_host_name}/"
 setupOptions[admin_lastname]='Admin'
 setupOptions[admin_firstname]='Admin'
@@ -56,8 +57,11 @@ export SKIP_CACHE_CLEAN=1
 db_names=("${setupOptions[db_name]}" "magento_integration_tests" )
 for db_name in "${db_names[@]}"; do
     status "Dropping and creating '${db_name}' DB"
-    mysql -e "drop database if exists ${db_name}; create database ${db_name};"
+    sudo mysql -e "drop database if exists ${db_name}; create database ${db_name};"
+    sudo mysql -e "GRANT ALL ON ${db_name}.* TO ${setupOptions[db_user]}@localhost IDENTIFIED BY '${setupOptions[db_password]}';"
 done
+
+printf "[client]\nuser=${setupOptions[db_user]}\npassword=${setupOptions[db_password]}\n" > ~/.my.cnf
 
 # Install Magento application
 cd ${MAGENTO_ROOT}
@@ -66,6 +70,7 @@ install_cmd="./bin/magento setup:install \
     --db-host=${setupOptions[db_host]} \
     --db-name=${setupOptions[db_name]} \
     --db-user=${setupOptions[db_user]} \
+    --db-password=${setupOptions[db_password]} \
     --backend-frontname=${setupOptions[admin_frontname]} \
     --base-url=${setupOptions[base_url]} \
     --language=${setupOptions[language]} \

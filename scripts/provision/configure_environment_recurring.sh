@@ -37,56 +37,60 @@ php_version=$8
 
 # TODO: Remove support for deprecated argument use_php7
 if [[ -z ${php_version} ]]; then
-    if [[ ${use_php7} -eq 1 ]]; then
-        php_version="7.0"
-    else
-        php_version="5.6"
-    fi
+    php_version="7.3"
 fi
+
 
 
 vagrant_dir="/vagrant"
 
 source "${vagrant_dir}/scripts/output_functions.sh"
 
+# replace php_version in xdebug script
+sed -i "s/php_version=[0-9]\.[0-9]/php_version=$php_version/" "${vagrant_dir}/scripts/guest/xdebug"
+
 status "Configuring environment (recurring)"
 incrementNestingLevel
-
+#exit 0
 status "Removing configs from host in case of force stop of virtual machine before linking restored ones"
 cd "${vagrant_dir}/etc" && mv guest/.gitignore guest_gitignore.back && rm -rf guest && mkdir guest && mv guest_gitignore.back guest/.gitignore
-
+#exit 0
 status "Making sure configs are restored on system halt and during reboot"
 # Unlink here helps in case when Virtual Machine was suspended
-bash "${vagrant_dir}/scripts/guest/unlink_configs"
-bash "${vagrant_dir}/scripts/guest/link_configs"
-
+# commented out, couse moving the mysql folder from guest to host, causes permission issues
+#bash "${vagrant_dir}/scripts/guest/unlink_configs"
+#bash "${vagrant_dir}/scripts/guest/link_configs"
+#exit 0
+service mysql restart 2> >(logError) > >(log)
+#exit 0
 rm -f /etc/init.d/unlink-configs
 cp "${vagrant_dir}/scripts/guest/unlink_configs" /etc/init.d/unlink-configs
 update-rc.d unlink-configs defaults 04 2> >(log) > >(log)
-
+service mysql restart 2> >(logError) > >(log)
+#exit 0
 status "Upgrading existing environment"
 if [[ -f "${vagrant_dir}/.idea/deployment.xml" ]]; then
     sed -i.back "s|magento2ce/var/generation|magento2ce/var|g" "${vagrant_dir}/.idea/deployment.xml"
 fi
-
-status "Copying varnish vcl file"
-custom_vcl_config="${vagrant_dir}/etc/magento2_default_varnish.vcl"
-default_vcl_config="${vagrant_dir}/etc/magento2_default_varnish.vcl.dist"
-if [ -f ${custom_vcl_config} ]; then
-    cp ${custom_vcl_config}  /etc/varnish/default.vcl
-else
-    cp ${default_vcl_config}  /etc/varnish/default.vcl
-fi
+#exit 0
+#status "Copying varnish vcl file"
+#custom_vcl_config="${vagrant_dir}/etc/magento2_default_varnish.vcl"
+#default_vcl_config="${vagrant_dir}/etc/magento2_default_varnish.vcl.dist"
+#if [ -f ${custom_vcl_config} ]; then
+#    cp ${custom_vcl_config}  /etc/varnish/default.vcl
+#else
+#    cp ${default_vcl_config}  /etc/varnish/default.vcl
+#fi
 
 status "Setting up PHP"
 
-php_ini_paths=( /etc/php/5.6/cli/php.ini /etc/php/7.0/cli/php.ini /etc/php/7.1/cli/php.ini /etc/php/7.2/cli/php.ini )
+php_ini_paths=( /etc/php/7.2/cli/php.ini /etc/php/7.3/cli/php.ini )
 process_php_config ${php_ini_paths}
 
-if [[ ${php_version} == "5.6" ]] || [[ ${php_version} == "7.0" ]] || [[ ${php_version} == "7.1" ]] || [[ ${php_version} == "7.2" ]]; then
+if [[ ${php_version} == "7.2" ]] || [[ ${php_version} == "7.3" ]]; then
     status "Configuring PHP ${php_version}"
     update-alternatives --set php "/usr/bin/php${php_version}"
-    a2dismod php5.6 2> >(logError) > >(log) && a2dismod php7.0 2> >(logError) > >(log) && a2dismod php7.1 2> >(logError) > >(log) && a2dismod php7.2 2> >(logError) > >(log)
+    a2dismod php7.2 2> >(logError) > >(log) && a2dismod php7.3 2> >(logError) > >(log)
     a2enmod "php${php_version}" 2> >(logError) > >(log)
     sed -i "s|xdebug.remote_connect_back=1|xdebug.remote_host=192.168.10.1|g" "/etc/php/${php_version}/cli/conf.d/20-xdebug.ini"
 else
@@ -94,17 +98,20 @@ else
     decrementNestingLevel
     exit 1
 fi
+status "Restarting Apache"
 service apache2 restart 2> >(logError) > >(log)
-
-is_elastic_search_installed="$(isServiceAvailable elasticsearch)"
-if [[ ${is_elastic_search_installed} -eq 0 ]]; then
-    status "Setting up ElasticSearch"
-    apt-get update 2> >(logError) > >(log)
-    apt-get install -y openjdk-7-jre 2> >(logError) > >(log)
-    wget https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.7.2.deb 2> >(logError) > >(log)
-    dpkg -i elasticsearch-1.7.2.deb 2> >(logError) > >(log)
-    update-rc.d elasticsearch defaults 2> >(logError) > >(log)
-fi
+#exit 0
+#TODO modifiy, its nor up to date
+# this caused also problems with bash "${vagrant_dir}/scripts/guest/link_configs", changes themed to be reverted
+#is_elastic_search_installed="$(isServiceAvailable elasticsearch)"
+#if [[ ${is_elastic_search_installed} -eq 0 ]]; then
+#    status "Setting up ElasticSearch"
+#    apt-get update 2> >(logError) > >(log)
+#    apt-get install -y openjdk-7-jre 2> >(logError) > >(log)
+#    wget https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.7.2.deb 2> >(logError) > >(log)
+#    dpkg -i elasticsearch-1.7.2.deb 2> >(logError) > >(log)
+#    update-rc.d elasticsearch defaults 2> >(logError) > >(log)
+#fi
 
 status "Enabling email logging"
 php_ini_file="/etc/php/${php_version}/cli/php.ini"
