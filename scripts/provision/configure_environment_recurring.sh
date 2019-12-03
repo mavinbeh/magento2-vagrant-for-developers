@@ -47,7 +47,7 @@ vagrant_dir="/vagrant"
 source "${vagrant_dir}/scripts/output_functions.sh"
 
 # replace php_version in xdebug script
-sed -i "s/php_version=[0-9]\.[0-9]/php_version=$php_version/" "${vagrant_dir}/scripts/guest/xdebug"
+sed -i "s/php_version=[0-9]\.[0-9]/php_version=$php_version/" "${vagrant_dir}/scripts/guest/m-xdebug"
 
 status "Configuring environment (recurring)"
 incrementNestingLevel

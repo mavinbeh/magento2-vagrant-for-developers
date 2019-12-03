@@ -15,5 +15,6 @@ if [[ ${debug_vagrant_project} -eq 1 ]]; then
 fi
 
 bash "${vagrant_dir}/scripts/host/m_xdebug.sh" "$@" 2> >(logError)
+terminal-notifier -message "xdebug 've changed" -sound default
 
 #info "$(regular)See details in $(bold)${vagrant_dir}/log/${current_script_name}.log$(regular). For debug output set $(bold)debug:vagrant_project$(regular) to $(bold)1$(regular) in $(bold)etc/config.yaml$(regular)"

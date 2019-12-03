@@ -1,17 +1,54 @@
 #!/usr/bin/env bash
 
 
-php_version=7.3
+php_version=7.2
 
 xdebug_ini_on="/etc/php/$php_version/apache2/conf.d/20-xdebug.ini"
 xdebug_ini_off="/etc/php/$php_version/apache2/conf.d/20-xdebug.ini.deactivated"
 
-if [ -s $xdebug_ini_on ]; then
-   sudo mv $xdebug_ini_on $xdebug_ini_off \
-   && sudo service apache2 restart \
-   && echo '========= XDebug was disabled ========='
+function switch_on {
+    sudo mv "$2" "$1" \
+    && sudo service apache2 restart \
+    && echo '========= XDebug was enabled ========='
+}
+
+function switch_off {
+    sudo mv "$1" "$2" \
+    && sudo service apache2 restart \
+    && echo '========= XDebug was disabled ========='
+}
+
+function stay_on {
+    echo '========= XDebug was already enabled ========='
+}
+
+function stay_off {
+    echo '========= XDebug was already disabled ========='
+}
+
+
+if [ -n "$1" ]; then
+    if [ $1 == "on" ]; then
+        if [ -s $xdebug_ini_on ]; then
+            stay_on
+        else
+            switch_on "$xdebug_ini_on" "$xdebug_ini_off"
+        fi
+    elif [ $1 == "off" ]; then
+        if [ -s $xdebug_ini_off ]; then
+            stay_off
+        else
+            switch_off "$xdebug_ini_on" "$xdebug_ini_off"
+        fi
+    else
+        echo "XXXXXXXXX XDebug: wrong parameter XXXXXXXXX"
+    fi
 else
-  sudo mv $xdebug_ini_off $xdebug_ini_on \
-  && sudo service apache2 restart \
-  && echo '========= XDebug was enabled ========='
+    if [ -s $xdebug_ini_on ]; then
+        switch_off "$xdebug_ini_on" "$xdebug_ini_off"
+    else
+        switch_on "$xdebug_ini_on" "$xdebug_ini_off"
+    fi
 fi
+
+

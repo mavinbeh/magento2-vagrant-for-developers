@@ -17,6 +17,7 @@ fi
 arguments=$@
 cd "${vagrant_dir}"
 vagrant ssh -c "\$MAGENTO_ROOT/bin/magento $arguments" 2> >(logError)
+terminal-notifier -message "m-bin-magento $arguments is finished" -sound default
 # To debug, comment out line above and uncomment line below
 # vagrant ssh -c "php -d xdebug.remote_autostart=1 \$MAGENTO_ROOT/bin/magento $arguments" 2> >(logError)
 
